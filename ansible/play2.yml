@@ -1,0 +1,14 @@
+- name: Loops
+  hosts: all
+  become: yes
+
+
+  tasks:
+
+  - name: Create Dir
+    file:
+       path: "/hone/{{item}}"
+       state: directory
+    loop:
+       - dir1
+       - dir2
