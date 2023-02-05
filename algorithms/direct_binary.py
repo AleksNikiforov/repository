@@ -1,4 +1,4 @@
-from binary_tree import root
+from algorithms.binary_tree import root
 
 
 def direct(node):
