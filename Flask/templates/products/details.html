@@ -6,7 +6,7 @@
 
 {% block body %}
 <h2>Products #{{ product.id }} Detail</h2>
-<h3>Name: #{{ product.name }} Detail</h3>
+<h3 class="product">Name: #{{ product.name }} Detail</h3>
 
 <div>
     <a href="{{ url_for('products_app.list') }}">

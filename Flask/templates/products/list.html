@@ -5,12 +5,14 @@
 {% endblock %}
 
 {% block body %}
-  <h2>Products list</h2>
+  <h1>Products list</h1>
   <div>
     <ul>
         {% for product in products %}
         <li> 
-            <a href="{{ url_for('products_app.details', product_id=product.id) }}">
+            <a 
+            class="product slide-in"
+            href="{{ url_for('products_app.details', product_id=product.id) }}">
                 {{ product.name }}
             </a>
         </li>
