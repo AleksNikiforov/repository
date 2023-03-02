@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for
+from flask import Blueprint, render_template, request, redirect, url_for, flash
 from dataclasses import dataclass
 from werkzeug.exceptions import BadRequest, NotFound
 
@@ -11,10 +11,11 @@ products_app = Blueprint(
 )
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=False, slots=True)
 class Product:
     id: int
     name: str
+    short_description: str = ""
 
 
 @dataclass(frozen=False, slots=True)
@@ -30,6 +31,8 @@ class ProductsStorage:
     def create(self, name: str) -> Product:
         product = Product(id=self.next_index, name=name)
         self.products[product.id] = product
+        short_description = f"Product #{product.id} ({product.name}) short description"
+        product.short_description = short_description
         return product
 
 
@@ -45,11 +48,20 @@ def get_products_list():
     return render_template("products/list.html", products=products)
 
 
-@products_app.get("/<int:product_id>/", endpoint='details')
-def get_product_detail(product_id: int):
+def get_product_or_raise(product_id: int) -> Product:
     product = storage.products.get(product_id)
-    if product is None:
-        raise NotFound(f"Product #{product_id} not found!")
+    if product:
+        return product
+    raise NotFound(f"Product #{product_id} not found!")
+
+
+@products_app.get("/<int:product_id>/", endpoint="details")
+def get_product_details(product_id: int):
+    # try:
+    #     product = storage.products[product_id]
+    # except KeyError:
+    #     ...
+    product = get_product_or_raise(product_id)
     return render_template("products/details.html", product=product)
 
 
@@ -64,6 +76,19 @@ def create_product():
         raise BadRequest("Field product-name is required!")
 
     product = storage.create(product_name)
+    flash(f"Product {product_name} was created")
     url = url_for("products_app.details", product_id=product.id)
     return redirect(url)
 
+
+@products_app.route("/<int:product_id>/delete/", methods=["GET", "POST"], endpoint="delete")
+def delete_product(product_id: int):
+    product = get_product_or_raise(product_id)
+
+    if request.method == "GET":
+        return render_template("products/delete.html", product=product)
+
+    storage.products.pop(product_id)
+    flash(f"Deleted product {product.name}!", category="warning")
+    url = url_for("products_app.list")
+    return redirect(url)

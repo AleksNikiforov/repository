@@ -34,7 +34,7 @@ let productLastId = 0
 //   fetchAndShowProduct(productLastId)
 // }, 1000)
 
-setInterval(function () {
-  productLastId += 1
-  fetchAndShowProduct(productLastId)
-}, 1000)
+// setInterval(function () {
+//   productLastId += 1
+//   fetchAndShowProduct(productLastId)
+// }, 1000)

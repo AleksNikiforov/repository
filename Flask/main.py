@@ -4,6 +4,9 @@ from views.products import products_app
 
 
 app = Flask(__name__)
+app.config.update(
+    SECRET_KEY="qwerty",
+)
 app.register_blueprint(items_app)
 app.register_blueprint(products_app)
 
