@@ -84,3 +84,4 @@ def get_image(img_dir: str = "default/images/path"):
 
 if __name__ == "__main__":
     app.run()
+    
