@@ -13,7 +13,7 @@ class Config:
     SECRET_KEY = "qwert12e12y"
     SQLALCHEMY_DATABASE_URI = SQLALCHEMY_DATABASE_URI
     SQLALCHEMY_ECHO = False
-    WTF_CSRF_TIME_LIMIT = 600
+    WTF_CSRF_TIME_LIMIT = 3600
 
 
 class ProductionConfig(Config):

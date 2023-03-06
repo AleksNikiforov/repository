@@ -38,6 +38,7 @@
             method="post"
             action="{{ url_for('products_app.delete', product_id=product.id) }}"
           >
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <button type="submit" class="btn btn-danger">Delete</button>
           </form>
         </div>

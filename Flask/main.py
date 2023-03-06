@@ -3,6 +3,7 @@ from flask import Flask, request, render_template
 from views.items import items_app
 from views.products import products_app
 from flask_migrate import Migrate
+from flask_wtf import CSRFProtect
 from models import db
 
 
@@ -15,6 +16,8 @@ app.register_blueprint(products_app)
 
 db.init_app(app)
 migrate = Migrate(app=app, db=db)
+
+csrf = CSRFProtect(app)
 
 @app.cli.command("create-all")
 def command_create_all():
