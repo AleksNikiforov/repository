@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from dataclasses import dataclass
 from werkzeug.exceptions import BadRequest, NotFound
-
+from models import db, Product
 
 
 products_app = Blueprint(
@@ -11,45 +11,14 @@ products_app = Blueprint(
 )
 
 
-@dataclass(frozen=False, slots=True)
-class Product:
-    id: int
-    name: str
-    short_description: str = ""
-
-
-@dataclass(frozen=False, slots=True)
-class ProductsStorage:
-    products: dict[int, Product]
-    last_index: int = 0
-
-    @property
-    def next_index(self):
-        self.last_index += 1
-        return self.last_index
-
-    def create(self, name: str) -> Product:
-        product = Product(id=self.next_index, name=name)
-        self.products[product.id] = product
-        short_description = f"Product #{product.id} ({product.name}) short description"
-        product.short_description = short_description
-        return product
-
-
-storage = ProductsStorage(products={})
-storage.create("Laptop")
-storage.create("Desktop")
-storage.create("Smartphone")
-
-
 @products_app.get("/", endpoint = 'list')
 def get_products_list():
-    products = list(storage.products.values())
+    products = Product.query.all()
     return render_template("products/list.html", products=products)
 
 
 def get_product_or_raise(product_id: int) -> Product:
-    product = storage.products.get(product_id)
+    product = Product.query.get(product_id)
     if product:
         return product
     raise NotFound(f"Product #{product_id} not found!")
@@ -75,7 +44,9 @@ def create_product():
     if not product_name:
         raise BadRequest("Field product-name is required!")
 
-    product = storage.create(product_name)
+    product = Product(name=product_name)
+    db.session.add(product)
+    db.session.commit()
     flash(f"Product {product_name} was created")
     url = url_for("products_app.details", product_id=product.id)
     return redirect(url)
@@ -88,7 +59,10 @@ def delete_product(product_id: int):
     if request.method == "GET":
         return render_template("products/delete.html", product=product)
 
-    storage.products.pop(product_id)
-    flash(f"Deleted product {product.name}!", category="warning")
+    product_name = product.name
+    db.session.delete(product)
+    db.session.commit()
+
+    flash(f"Deleted product {product_name}!", category="warning")
     url = url_for("products_app.list")
     return redirect(url)

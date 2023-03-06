@@ -1,14 +1,25 @@
+import os
 from flask import Flask, request, render_template
 from views.items import items_app
 from views.products import products_app
+from flask_migrate import Migrate
+from models import db
 
+
+config_name = os.getenv("CONFIG_NAME", "DevelopmentConfig")
 
 app = Flask(__name__)
-app.config.update(
-    SECRET_KEY="qwerty",
-)
+app.config.from_object(f"config.{config_name}")
 app.register_blueprint(items_app)
 app.register_blueprint(products_app)
+
+db.init_app(app)
+migrate = Migrate(app=app, db=db)
+
+@app.cli.command("create-all")
+def command_create_all():
+    with app.app_context():
+        db.create_all()
 
 
 @app.get("/", endpoint = 'main_page')
@@ -69,6 +80,4 @@ def get_image(img_dir: str = "default/images/path"):
 
 
 if __name__ == "__main__":
-    app.run(
-        debug=True,
-    )
+    app.run()
