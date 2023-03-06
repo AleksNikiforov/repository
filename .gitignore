@@ -1,5 +1,3 @@
-*.__pycache__
-
 # IDEs
 .idea/
 
@@ -140,4 +138,3 @@ dmypy.json
 .pytype/
 
 # Cython debug symbols
-cython_debug/
